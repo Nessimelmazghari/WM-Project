@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nesflixer - Streaming</title>
+  <link rel="stylesheet" href="styles/styles.css">
+  <script src="scripts/nesflixer.js" defer></script>
+</head>
+<body>
+  <header>
+    <div class="logo">Nesflixer</div>
+
+    <nav class="nav-links">
+      <a href="#home" id="home">Home</a>
+      <a href="#series">Series</a>
+      <a href="#films">Films</a>
+      <a href="#recently-added">Recently Added</a>
+      <a href="#watchlist">Watchlist</a>
+    </nav>
+    <div class="search-bar">
+      <input type="text" placeholder="Search for movies or categories...">
+      <button type="button">Zoeken</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="video-player-section">
+      <h2>Now Playing</h2>
+
+      <!-- Video Player Container -->
+      <div class="video-container" id="videoEmbed">
+        <iframe id="videoEmbed" width="100%" height="auto" src="https://www.youtube.com/embed/trFrjOASN5k?si=Sy_2fJmpKcElUeE4" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <!-- Play/Pause Button -->
+        <button id="playPauseBtn" class="play-pause-btn">Play</button>
+      </div>
+      <!-- Video Controls -->
+      <div class="video-controls">
+        <button id="rewindBtn">⏪ 10s</button>
+        <button id="fastForwardBtn">⏩ 10s</button>
+        <input type="range" id="volumeControl" min="0" max="1" step="0.1" value="1">
+        <span id="volumeLabel">Volume</span>
+        <input type="range" id="progressControl" value="0" step="1">
+        <span id="currentTime">00:00</span> / <span id="duration">00:00</span>
+      </div>
+    </section>
+
+    <section class="features">
+      <label><input type="checkbox"> 🎙 Voice Command</label>
+      <label>
+        <input type="checkbox" id="liveCallCheckbox"> 📹 Live Call with Camera
+      </label>
+      <button type="button" id="inviteLinkBtn" class="movie-info" style="display: none;">Invite Link</button>
+    </section>
+
+    <!-- Chatbox and Camera Section (Initially hidden) -->
+    <section id="liveCallSection" class="live-call-section" style="display: none;">
+      <div class="camera-container">
+        <video id="cameraStream" width="300" height="auto" autoplay></video>
+      </div>
+      <div class="chatbox-container">
+        <div id="chatbox">
+          <div id="messages"></div>
+          <input type="text" id="chatInput" placeholder="Type a message...">
+          <button id="sendMessageBtn">Send</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="smart-controls">
+      <label><input type="checkbox"> Auto Add to Watchlist</label>
+      <label><input type="checkbox"> 🔆 Adjust Brightness with Phone</label>
+      <label><input type="checkbox"> 📴 Pause When Phone Down</label>
+      <label><input type="checkbox"> 📶 Grip Sensor for Pause</label>
+    </section>
+
+    <section class="movie-info">
+      <h3>Movie/Series Information</h3>
+      <p>Click on a movie or series to get detailed information, including summary and reviews.</p>
+    </section>
+
+    <section class="search-categories">
+      <h3>Search Categories</h3>
+      <button>Popular</button>
+      <button>Newest</button>
+      <button>Top Rated</button>
+    </section>
+  </main>
+</body>
+</html>

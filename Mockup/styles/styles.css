@@ -1,0 +1,222 @@
+/* General layout and styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #141414;
+    color: #e5e5e5;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: #141414;
+    border-bottom: 1px solid #333;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: #e5e5e5;
+    text-decoration: none;
+    font-size: 16px;
+    transition: color 0.3s;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #e50914;
+}
+
+.search-bar {
+    display: flex;
+    gap: 8px;
+}
+
+.search-bar input[type="text"] {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #333;
+    background-color: #333;
+    color: #e5e5e5;
+}
+
+.search-bar button {
+    color: #fff;
+    background-color: #e50914;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-bar button:hover {
+    background-color: #b00710;
+}
+
+main {
+    padding: 20px;
+}
+
+.video-player-section {
+    margin-bottom: 20px;
+}
+
+/* Layout for the video and live call section */
+.video-container {
+    position: relative;
+    width: 100%;
+}
+
+iframe {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+    z-index: 1; /* Ensure video is behind chat and camera */
+}
+
+/* Video Controls */
+.video-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.features, .smart-controls, .movie-info, .search-categories {
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: #222;
+    border-radius: 8px;
+}
+
+.features label, .smart-controls label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+/* Styling for live call section */
+.live-call-section {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000; /* Ensure it stays on top */
+    width: 300px;
+}
+
+.camera-container {
+    margin-bottom: 20px;
+}
+
+#cameraStream {
+    width: 100%;
+    height: auto;
+    border: 2px solid #fff;
+    border-radius: 8px;
+}
+
+.chatbox-container {
+    width: 100%;
+    background-color: #222;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+#chatbox {
+    display: flex;
+    flex-direction: column;
+}
+
+#chatbox #messages {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+#chatInput {
+    padding: 8px;
+    width: 100%;
+    border: none;
+    background-color: #333;
+    color: #e5e5e5;
+    border-radius: 4px;
+}
+
+#sendMessageBtn {
+    padding: 8px 16px;
+    background-color: #e50914;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#sendMessageBtn:hover {
+    background-color: #b00710;
+}
+
+/* Fullscreen adjustments */
+.fullscreen iframe {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1; /* Keep video behind chat and camera */
+}
+
+body.fullscreen .video-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+}
+
+/* Ensure that chatbox and camera are still visible on top */
+body.fullscreen .live-call-section {
+    z-index: 10000; /* Ensure it stays above fullscreen video */
+}
+
+/* Layout for the video and live call section */
+.video-container {
+    position: relative;
+    width: 100%;
+}
+
+iframe {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+    z-index: 1; /* Ensure video is behind chat and camera */
+}
+
+/* Styling for live call section */
+.live-call-section {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000; /* Ensure it stays on top */
+    width: 300px;
+}
