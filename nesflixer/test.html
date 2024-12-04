@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Video Sync</title>
+    <style>
+        iframe, video {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Online Video Sync</h1>
+    <input type="text" id="searchInput" placeholder="Zoek naar video's...">
+    <button onclick="searchVideos()">Zoek</button>
+    <div id="searchResults"></div>
+
+    <script>
+        const videoContainer = document.createElement('div'); // Container voor video
+        document.body.appendChild(videoContainer);
+
+        let currentVideoElement = null;
+
+        function searchVideos() {
+            const query = document.getElementById('searchInput').value;
+            fetch(`video_search_api.php?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    const resultsContainer = document.getElementById('searchResults');
+                    resultsContainer.innerHTML = '';
+                    data.results.forEach(video => {
+                        const videoLink = document.createElement('a');
+                        videoLink.href = '#';
+                        videoLink.innerText = video.title;
+                        videoLink.onclick = (event) => {
+                            event.preventDefault(); // Voorkom dat de link de pagina herlaadt
+                            videoContainer.innerHTML = '';
+
+                            if (video.url.includes('youtube')) {
+                                const iframe = document.createElement('iframe');
+                                iframe.src = `https://www.youtube.com/embed/${getYouTubeVideoId(video.url)}`;
+                                iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                                iframe.id = 'youtubeIframe';
+                                videoContainer.appendChild(iframe);
+                                currentVideoElement = iframe;
+                            } else {
+                                const newVideoElement = document.createElement('video');
+                                newVideoElement.controls = true;
+                                const videoSource = document.createElement('source');
+                                videoSource.src = video.url;
+                                videoSource.type = 'video/mp4';
+                                newVideoElement.appendChild(videoSource);
+                                videoContainer.appendChild(newVideoElement);
+                                newVideoElement.load();
+                                newVideoElement.play();
+                                currentVideoElement = newVideoElement;
+                            }
+
+                            // Start de polling om de seconde
+                            setInterval(checkCurrentState, 1000);
+
+                            syncVideoState();
+                        };
+                        resultsContainer.appendChild(videoLink);
+                        resultsContainer.appendChild(document.createElement('br'));
+                    });
+                })
+                .catch(error => console.error('Error fetching videos:', error));
+        }
+
+        function getYouTubeVideoId(url) {
+            const regex = /(?:https?:\/\/(?:www\.)?youtube\.com\/(?:[^\/]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*\?v=|(?:\/|%2F)\/))([^"&?\/\s]{11})/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        function syncVideoState() {
+            if (currentVideoElement) {
+                if (currentVideoElement.tagName === 'VIDEO') {
+                    currentVideoElement.addEventListener('play', () => updateState('playing'));
+                    currentVideoElement.addEventListener('pause', () => updateState('paused'));
+                } else if (currentVideoElement.tagName === 'IFRAME') {
+                    const iframe = currentVideoElement;
+                    const youtubePlayer = new YT.Player(iframe.id, {
+                        events: {
+                            'onStateChange': function(event) {
+                                if (event.data === YT.PlayerState.PLAYING) {
+                                    updateState('playing');
+                                } else if (event.data === YT.PlayerState.PAUSED) {
+                                    updateState('paused');
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+        function checkCurrentState() {
+            fetch('video_state.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (currentVideoElement && data.state) {
+                        if (data.state === 'playing' && currentVideoElement.paused) {
+                            currentVideoElement.play();
+                        } else if (data.state === 'paused' && !currentVideoElement.paused) {
+                            currentVideoElement.pause();
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching state:', error));
+        }
+
+        function updateState(state) {
+            fetch('video_state.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `state=${state}`
+            })
+            .catch(error => console.error('Error posting state:', error));
+        }
+    </script>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+</body>
+</html>

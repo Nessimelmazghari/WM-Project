@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Camera Feed</title>
+    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
+</head>
+<body>
+    <h2>Live Camera Feed</h2>
+    <video id="videoElement" autoplay playsinline></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <script>
+        const chunks = [];
+        let totalChunks = 0;
+        let currentChunk = 0;
+
+        // Initialiseer Pusher
+        const pusher = new Pusher('428059e9e1cc5055650d', {
+            cluster: 'eu',
+            encrypted: true
+        });
+
+        // Abonneer je op het video-kanaal
+        const channel = pusher.subscribe('video-channel');
+
+        // Verkrijg toegang tot de webcam
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                // Weergeef de webcam video in de <video> tag
+                document.getElementById('videoElement').srcObject = stream;
+
+                const videoElement = document.getElementById('videoElement');
+                const canvas = document.getElementById('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Stel de canvas in om het video-frame weer te geven
+                videoElement.addEventListener('play', function () {
+                    setInterval(function () {
+                        if (videoElement.paused || videoElement.ended) return;
+
+                        // Teken het video-frame op de canvas
+                        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+                        // Verkrijg het beeld als base64
+                        const frameData = canvas.toDataURL('image/png'); // Gebruik 'image/jpeg' voor lagere bestandsgrootte
+
+                        // Base64 encode de afbeelding
+                        const encodedFrame = frameData.split(',')[1]; // Verwijder de data:image/png, prefix
+
+                        // Splits de base64 string in kleinere delen van bijvoorbeeld 1024 bytes
+                        const chunkSize = 1024;
+                        const chunks = str_split(encodedFrame, chunkSize);
+
+                        // Verstuur elke chunk naar Pusher via de backend
+                        chunks.forEach((chunk, index) => {
+                            const data = {
+                                chunk: chunk,
+                                index: index,
+                                total_chunks: chunks.length
+                            };
+
+                            // Verstuur de data naar je backend (gebruik de volledige URL naar je PHP-bestand)
+                            setTimeout(() => {
+                                fetch('https://nessimelmazghari-odisee.be/nesflixer/send_frame.php', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(data)
+                                });
+                            }, index * 500); // Vertraging van 500ms tussen de verzoeken om rate-limiting te voorkomen
+                        });
+                    }, 5000); // Verzenden elke 500ms voor real-time video
+                });
+            })
+            .catch(function (err) {
+                console.error("Error accessing the camera: ", err);
+            });
+
+        // Functie om base64 string in stukken te splitsen
+        function str_split(str, chunkSize) {
+            const result = [];
+            for (let i = 0; i < str.length; i += chunkSize) {
+                result.push(str.slice(i, i + chunkSize));
+            }
+            return result;
+        }
+
+        // Ontvang de chunks aan de andere kant en voeg ze samen
+        channel.bind('new-frame-chunk', function (data) {
+            chunks[data.index] = data.chunk;
+
+            // Als het laatste chunk is ontvangen, combineer de data
+            if (data.index === data.total_chunks - 1) {
+                const completeBase64Image = chunks.join('');
+                const img = new Image();
+                img.src = 'data:image/png;base64,' + completeBase64Image;
+
+                // Voeg de afbeelding toe aan de pagina
+                document.body.appendChild(img);
+            }
+        });
+    </script>
+</body>
+</html>

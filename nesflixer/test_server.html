@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Page</title>
+</head>
+<body>
+    <h1>Test of Node.js Server</h1>
+    <p id="status">Connecting to server...</p>
+
+    <script>
+        // Maak een eenvoudige fetch-aanroep naar je server
+        fetch('https://nessimelmazghari-odisee.be:8080')  // Pas poortnummer aan indien nodig
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('status').innerText = 'Server says: ' + data;
+            })
+            .catch(error => {
+                document.getElementById('status').innerText = 'Error: ' + error;
+            });
+    </script>
+</body>
+</html>

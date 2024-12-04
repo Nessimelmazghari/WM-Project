@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nesflix</title>
+    <style>
+        /* Algemene body styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #141414;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 3em;
+            color: #fff;
+        }
+
+        /* Video Grid */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Video Card Styling */
+        .video-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .video-item:hover {
+            transform: scale(1.05);
+        }
+
+        .video-item img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        /* Titel en overlay */
+        .video-item h3 {
+            position: absolute;
+            bottom: 10px;
+            left: 20px;
+            color: #fff;
+            font-size: 1.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+            z-index: 2;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+
+        .video-item:hover .video-overlay {
+            opacity: 1;
+        }
+
+        .video-overlay a {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background-color: #e50914;
+            color: #fff;
+            font-size: 1.2em;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .video-overlay a:hover {
+            background-color: #f40612;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .video-item h3 {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Nesflix</h1>
+    <div id="videoContainer" class="video-grid"></div>
+
+    <script>
+        // Ophalen van video-informatie uit het PHP-script
+        fetch('fetch_videos.php')
+            .then(response => response.json())
+            .then(videos => {
+                const container = document.getElementById('videoContainer');
+                videos.forEach(video => {
+                    const videoElement = document.createElement('div');
+                    videoElement.classList.add('video-item');
+                    videoElement.innerHTML = `
+                        <img src="https://via.placeholder.com/500x280/141414/ffffff?text=${video.title}" alt="${video.title}">
+                        <div class="video-overlay">
+                            <a href="${video.url}" target="_blank">Bekijk</a>
+                        </div>
+                        <h3>${video.title}</h3>
+                    `;
+                    container.appendChild(videoElement);
+                });
+            })
+            .catch(error => console.error('Error loading videos:', error));
+    </script>
+</body>
+</html>
