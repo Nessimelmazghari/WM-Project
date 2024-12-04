@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Data</title>
+</head>
+<body>
+    <h1>Add Data to the Server</h1>
+    <form id="dataForm">
+        <label for="message">Enter Message:</label>
+        <input type="text" id="message" name="message" required>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        // Handle form submission
+        document.getElementById('dataForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const message = document.getElementById('message').value;
+
+            // Send data to the server
+            fetch('submit_data.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'message=' + encodeURIComponent(message)
+            })
+            .then(response => response.text())
+            .then(data => {
+                alert('Data submitted: ' + data);
+                document.getElementById('message').value = ''; // Clear the input field
+            })
+            .catch(error => console.error('Error submitting data:', error));
+        });
+    </script>
+</body>
+</html>

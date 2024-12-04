@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receive Live Camera Feed as Filmroll</title>
+    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
+    <style>
+        #imageContainer {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            max-height: 80vh;  /* Beperk de hoogte van het container voor scrollen */
+        }
+        img {
+            width: 100%;  /* Maak de beelden responsief */
+            margin-bottom: 5px; /* Geef wat ruimte tussen de beelden */
+        }
+    </style>
+</head>
+<body>
+    <h2>Live Camera Feed as Filmroll</h2>
+    <div id="imageContainer"></div>
+
+    <script>
+        // Initialiseer Pusher
+        const pusher = new Pusher('428059e9e1cc5055650d', {
+            cluster: 'eu',
+            encrypted: true
+        });
+
+        // Abonneer je op het video-kanaal
+        const channel = pusher.subscribe('video-channel');
+
+        // Ontvangen van frames in chunks
+        channel.bind('new-frame-chunk', function (data) {
+            // Maak een nieuwe afbeelding met de base64 data van de chunk
+            const img = new Image();
+            img.src = 'data:image/png;base64,' + data.chunk;
+
+            // Voeg de afbeelding toe aan de container
+            const imageContainer = document.getElementById('imageContainer');
+            imageContainer.appendChild(img);
+
+            // Optioneel: Zorg ervoor dat de container automatisch naar beneden scrollt
+            imageContainer.scrollTop = imageContainer.scrollHeight;
+        });
+
+        // Als er een probleem is met de verbinding, log het
+        pusher.connection.bind('state_change', function (state) {
+            if (state.current === 'failed') {
+                console.error('Pusher connection failed');
+            }
+        });
+    </script>
+</body>
+</html>
