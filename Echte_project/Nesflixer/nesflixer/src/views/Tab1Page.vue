@@ -15,10 +15,12 @@
         <h2>Populaire titels</h2>
         <swiper :slides-per-view="3" space-between="10">
           <swiper-slide v-for="(movie, index) in movies" :key="index">
-            <img :src="movie.image" :alt="movie.title" class="thumbnail" />
+            <!-- Klikken op de afbeelding geeft de juiste movieId door -->
+            <img :src="movie.image" :alt="movie.title" class="thumbnail" @click="navigateToTab2(movie.id)" />
           </swiper-slide>
         </swiper>
       </ion-list>
+      <ExploreContainer name="Tab 1 page" />
     </ion-content>
   </ion-page>
 </template>
@@ -26,15 +28,24 @@
 <script setup lang="ts">
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList } from '@ionic/vue';
 import { Swiper, SwiperSlide } from 'swiper/vue';
+import { useRouter } from 'vue-router'; // Router importeren
 import 'swiper/css';
 
+const router = useRouter(); // Router instance verkrijgen
+
+const navigateToTab2 = (movieId: number) => {
+  // Navigeren naar Tab 2 met de juiste movieId
+  router.push(`/tabs/tab2/${movieId}`);
+};
+
+// Voeg de 'id' toe aan je 'movies' array om de juiste movieId door te geven
 const movies = [
-  { title: 'Film 1', image: 'https://nessimelmazghari-odisee.be/nesflixer/thumbnails/Deadpool&Wolverine.jpg' },
-  { title: 'Film 2', image: 'https://nessimelmazghari-odisee.be/nesflixer/thumbnails/Mufasa.jpg' },
-  { title: 'Film 3', image: 'https://nessimelmazghari-odisee.be/nesflixer/thumbnails/Sonic3.jpg' },
-  { title: 'Film 1', image: 'https://nessimelmazghari-odisee.be/nesflixer/thumbnails/Wicked.jpg' },
-    { title: 'Film 2', image: 'https://via.placeholder.com/200x300' },
-    { title: 'Film 3', image: 'https://via.placeholder.com/200x300' },
+  { id: 1, title: 'Film 1', image: 'https://nessimelmazghari-odisee.be/nesflixer/thumbnails/Deadpool&Wolverine.jpg' },
+  { id: 2, title: 'Film 2', image: 'https://nessimelmazghari-odisee.be/nesflixer/thumbnails/Mufasa.jpg' },
+  { id: 3, title: 'Film 3', image: 'https://nessimelmazghari-odisee.be/nesflixer/thumbnails/Kraven_The_Hunter.jpg' },
+  { id: 4, title: 'Film 4', image: 'https://nessimelmazghari-odisee.be/nesflixer/thumbnails/Wicked.jpg' },
+  { id: 5, title: 'Film 5', image: 'https://via.placeholder.com/200x300' },
+  { id: 6, title: 'Film 6', image: 'https://via.placeholder.com/200x300' },
 ];
 </script>
 
@@ -46,17 +57,17 @@ const movies = [
   color: #e50914;
   text-align: center;
 }
-
+ 
 .banner {
   width: 100%;
-  height: auto;
+  height: auto; 
   display: block;
 }
 
 .thumbnail {
+  height: 1000px;
   width: 100%;
-  height: auto;
-  border-radius: 5px;
+  border-radius: 10px;
 }
 
 h2 {
