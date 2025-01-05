@@ -57,22 +57,29 @@ const movies = [
   color: #e50914;
   text-align: center;
 }
- 
+
 .banner {
   width: 100%;
-  height: auto; 
+  height: auto;
   display: block;
 }
 
 .thumbnail {
-  height: 1000px;
-  width: 100%;
+  width: 100%; /* Breedte vullen binnen de swiper */
+  aspect-ratio: 2 / 3; /* Zorg voor een verhouding van 2:3 */
   border-radius: 10px;
+  object-fit: cover; /* Zorg ervoor dat de afbeelding correct wordt bijgesneden */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3); /* Subtiele schaduw voor een moderne uitstraling */
+  margin: 0.5rem; /* Ruimte rondom de afbeelding */
 }
 
 h2 {
-  font-size: 1.5rem;
+  font-size: 1.2rem; /* Kleinere tekst voor Android telefoons */
   color: white;
   padding: 0 1rem;
+}
+
+.ion-content {
+  padding: 0; /* Verwijder standaard padding */
 }
 </style>

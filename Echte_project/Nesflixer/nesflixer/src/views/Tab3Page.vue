@@ -77,6 +77,7 @@ onMounted(async () => {
 .movie-details {
   padding: 1rem;
   color: white;
+  text-align: center; /* Uitlijnen voor consistentie */
 }
 
 .video-container {
@@ -87,25 +88,44 @@ onMounted(async () => {
 }
 
 video {
-  width: 100%;
-  max-width: 800px;
-  height: auto;
+  width: 90%; /* Vul 90% van de schermbreedte */
+  max-width: 800px; /* Limiteer tot 800px op grotere schermen */
+  aspect-ratio: 16 / 9; /* Standaard 16:9 verhouding */
+  height: auto; /* Zorg dat de hoogte automatisch wordt berekend */
   border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Schaduw voor een moderne look */
 }
 
 h2 {
-  font-size: 1.5rem;
+  font-size: 1.5rem; /* Titelgrootte aangepast */
   margin-bottom: 0.5rem;
+  color: #e50914; /* Kleur toegevoegd voor accent */
 }
 
 p {
-  font-size: 1rem;
+  font-size: 1rem; /* Geschikt formaat voor mobiele apparaten */
   color: #ccc;
+  line-height: 1.6; /* Verbeterde leesbaarheid */
 }
 
 ion-title {
   text-align: center;
   font-weight: bold;
   font-size: 1.5rem;
+}
+
+/* Responsiviteit voor kleinere schermen */
+@media (max-width: 600px) {
+  h2 {
+    font-size: 1.2rem; /* Kleiner formaat voor titels op kleine schermen */
+  }
+  
+  p {
+    font-size: 0.9rem; /* Kleinere tekstgrootte voor beschrijvingen */
+  }
+
+  video {
+    width: 100%; /* Vul de volledige breedte van de container */
+  }
 }
 </style>

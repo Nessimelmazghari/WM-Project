@@ -123,42 +123,58 @@ onMounted(async () => {
 }
 
 .movie-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 1rem;
+  color: white;
+  text-align: center;
 }
 
 .media-container {
   position: relative;
+  width: 90%; /* Vul 90% van het schermbreedte */
+  max-width: 600px; /* Limiteer tot 600px voor grotere schermen */
+  aspect-ratio: 16 / 9; /* Zorg voor een 16:9 verhouding */
   overflow: hidden;
   cursor: pointer;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3); /* Schaduw voor een moderne look */
 }
 
 .movie-image {
-  display: block;
-  border-radius: 5px;
-  height: 300px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Zorg voor een goede bijsnijding van de afbeelding */
+  border-radius: 10px;
 }
 
 .trailer-frame {
   position: absolute;
   top: 0;
   left: 0;
-  border-radius: 5px;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
   z-index: 2;
 }
 
 h2 {
-  font-size: 1.5rem;
-  color: white;
-  padding: 1rem 0;
+  font-size: 1.2rem; /* Geschikte grootte voor mobiele apparaten */
+  margin-bottom: 1rem;
 }
 
 p {
-  color: white;
-  padding: 1rem 0 1rem;
+  font-size: 1rem; /* Goede leesbaarheid op kleinere schermen */
+  line-height: 1.5;
+  padding: 0 1rem;
 }
 
 ion-button {
   margin-top: 1rem;
-  margin-bottom: 10rem;
+  width: 90%; /* Zorg dat de knop zich aanpast aan de breedte */
+  max-width: 300px; /* Limiteer tot 300px op grotere schermen */
+  align-self: center;
 }
 </style>
