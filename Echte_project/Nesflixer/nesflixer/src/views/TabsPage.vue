@@ -8,17 +8,19 @@
           tab="tab1"
           @click="navigateToTab('/tabs/tab1', false)"
         >
-          <ion-icon aria-hidden="true" :icon="triangle" />
-          <ion-label>Tab 1</ion-label>
+          <ion-icon aria-hidden="true"  /> 
+          <img src="@/assets/icons/home.png" alt="HoofdPagina" />
+     
         </ion-tab-button>
 
         <!-- Tab 2 (met ID) -->
         <ion-tab-button
           tab="tab2"
           @click="navigateToTab('/tabs/tab2', true)"
-        >
-          <ion-icon aria-hidden="true" :icon="ellipse" />
-          <ion-label>Tab 2</ion-label>
+        ><img src="@/assets/icons/info.png" alt="HoofdPagina" />
+          <ion-icon aria-hidden="true" />
+
+       
         </ion-tab-button>
 
         <!-- Tab 3 (met ID) -->
@@ -26,8 +28,9 @@
           tab="tab3"
           @click="navigateToTab('/tabs/tab3', true)"
         >
-          <ion-icon aria-hidden="true" :icon="square" />
-          <ion-label>Tab 3</ion-label>
+          <ion-icon aria-hidden="true" />
+          <img src="@/assets/icons/play.png" alt="HoofdPagina" />
+          
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>
@@ -39,12 +42,10 @@ import {
   IonTabBar,
   IonTabButton,
   IonTabs,
-  IonLabel,
   IonIcon,
   IonPage,
   IonRouterOutlet,
 } from '@ionic/vue';
-import { ellipse, square, triangle } from 'ionicons/icons';
 import { ref, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 
@@ -76,3 +77,11 @@ onMounted(() => {
   updateActiveTab();
 });
 </script>
+<style scoped>
+img {
+  width: 30px; /* Adjust the width of the icons */
+  height: auto; /* Adjust the height of the icons */
+  margin-right: 8px; /* Optional: adds space between the icon and the label */
+  margin-bottom: 10%;
+}
+</style>

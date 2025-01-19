@@ -2,15 +2,17 @@
   <ion-page>
     <ion-header>
       <ion-toolbar color="dark">
-        <ion-title class="logo">Nesflixer</ion-title>
+        <ion-title class="logo"><img src="https://nessimelmazghari-odisee.be/nesflixer/nesflixer_logo.png" alt="Logo" id="logo"></ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true">
+      <!-- Swiper Banner from the first code -->
       <swiper :slides-per-view="1" class="banner-swiper">
         <swiper-slide>
           <img src="https://nessimelmazghari-odisee.be/nesflixer/thumbnails/Moana.jpg" alt="Featured" class="banner" />
         </swiper-slide>
       </swiper>
+      
       <ion-list>
         <h2>Populaire titels</h2>
         <swiper :slides-per-view="3" space-between="10">
@@ -56,6 +58,7 @@ const movies = [
   font-weight: bold;
   color: #e50914;
   text-align: center;
+  background-color: black;
 }
 
 .banner {
@@ -65,21 +68,25 @@ const movies = [
 }
 
 .thumbnail {
-  width: 100%; /* Breedte vullen binnen de swiper */
-  aspect-ratio: 2 / 3; /* Zorg voor een verhouding van 2:3 */
+  width: 100%;
+  aspect-ratio: 2 / 3;
   border-radius: 10px;
-  object-fit: cover; /* Zorg ervoor dat de afbeelding correct wordt bijgesneden */
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3); /* Subtiele schaduw voor een moderne uitstraling */
-  margin: 0.5rem; /* Ruimte rondom de afbeelding */
+  object-fit: cover;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+  margin: 0.5rem;
 }
 
 h2 {
-  font-size: 1.2rem; /* Kleinere tekst voor Android telefoons */
+  font-size: 1.2rem;
   color: white;
   padding: 0 1rem;
 }
 
 .ion-content {
-  padding: 0; /* Verwijder standaard padding */
+  padding: 0;
+}
+
+#logo {
+  width: 80px;
 }
 </style>
