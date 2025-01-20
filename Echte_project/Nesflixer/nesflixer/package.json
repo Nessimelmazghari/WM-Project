@@ -16,7 +16,9 @@
   "dependencies": {
     "@capacitor/android": "6.2.0",
     "@capacitor/app": "latest",
-    "@capacitor/core": "latest",
+    "@capacitor/camera": "^6.1.2",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/device": "^6.0.2",
     "@capacitor/haptics": "latest",
     "@capacitor/keyboard": "latest",
     "@capacitor/status-bar": "latest",

@@ -1,16 +1,26 @@
 <template>
   <ion-page>
     <ion-header>
-      <ion-toolbar color="dark">
-        <ion-title class="logo">{{ movie?.title || 'Loading...' }}</ion-title>
+      <ion-toolbar :color="isDarkMode ? 'dark' : 'light'">
+        <div class="logo">
+          <img
+            src="https://nessimelmazghari-odisee.be/nesflixer/nesflixer_logo.png"
+            alt="Logo"
+            id="logo"
+          />
+        </div>
+        <div v-if="profileImage" class="profile-photo">
+          <img :src="profileImage" alt="Profiel Foto" />
+          <p>{{ username }}</p>
+        </div>
       </ion-toolbar>
     </ion-header>
-    <ion-content :fullscreen="true">
+    
+    <ion-content :fullscreen="true" class="scrollable-content">
       <div v-if="movie" class="movie-container">
         <h2>{{ movie.title }}</h2>
         <div
           class="media-container"
-          :style="{ width: 500 + 'px', height: 300 + 'px' }"
           @click="toggleTrailer"
         >
           <!-- Foto -->
@@ -27,7 +37,6 @@
             v-show="showTrailer"
             :src="getEmbedUrl(movie.trailer)"
             class="trailer-frame"
-            :style="{ width: 500 + 'px', height: 300 + 'px' }"
             frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen
@@ -62,8 +71,10 @@ const showTrailer = ref(false);
 const imageWidth = ref<number | null>(null);
 const imageHeight = ref<number | null>(null);
 const movieImage = ref<HTMLImageElement | null>(null);
+const isDarkMode = ref(false); // Track dark mode status
+const username = ref(localStorage.getItem('username') || '');
+const profileImage = ref(localStorage.getItem('profileImage') || '');
 
-// Stel de breedte en hoogte in op basis van de afbeelding
 const setImageDimensions = () => {
   if (movieImage.value) {
     imageWidth.value = movieImage.value.naturalWidth;
@@ -71,7 +82,6 @@ const setImageDimensions = () => {
   }
 };
 
-// Functie om een YouTube URL om te zetten naar een embedbare versie
 const getEmbedUrl = (url: string): string => {
   const videoId = url.split('v=')[1]?.split('&')[0];
   return videoId
@@ -79,17 +89,15 @@ const getEmbedUrl = (url: string): string => {
     : url;
 };
 
-// Navigatie naar tab3 met herladen
 const goToTab3 = () => {
   const movieId = route.params.id;
   if (movieId) {
     router.push(`/tabs/tab3/${movieId}`).then(() => {
-      window.location.reload(); // Herlaad de pagina na navigatie
+      window.location.reload();
     });
   }
 };
 
-// Toggle functie voor de trailer zichtbaar maken
 const toggleTrailer = () => {
   showTrailer.value = !showTrailer.value;
 };
@@ -100,7 +108,6 @@ onMounted(async () => {
     try {
       const response = await fetch(`https://nessimelmazghari-odisee.be/nesflixer/Api/getMovie.php?id=${movieId}`);
       const data = await response.json();
-
       if (data.error) {
         console.error(data.error);
       } else {
@@ -114,51 +121,105 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.scrollable-content {
+  overflow-y: auto;
+}
+
 .logo {
-  font-family: 'Arial', sans-serif;
   font-size: 1.5rem;
   font-weight: bold;
   color: #e50914;
   text-align: center;
 }
 
+#logo {
+  width: 80px;
+}
+
 .movie-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 1rem;
+  color: white;
+  text-align: center;
+  min-height: 120vh; /* Ensure container takes at least full viewport height */
+  max-width: 90%;
 }
 
 .media-container {
   position: relative;
+  width: 100%;
+  max-width: 600px;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   cursor: pointer;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .movie-image {
-  display: block;
-  border-radius: 5px;
-  height: 300px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  max-width: 100%;
 }
 
 .trailer-frame {
   position: absolute;
   top: 0;
   left: 0;
-  border-radius: 5px;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
   z-index: 2;
 }
 
 h2 {
-  font-size: 1.5rem;
-  color: white;
-  padding: 1rem 0;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #e50914;
+  font-weight: bolder;
 }
 
 p {
-  color: white;
-  padding: 1rem 0 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  padding: 0 1rem;
 }
 
 ion-button {
   margin-top: 1rem;
-  margin-bottom: 10rem;
+  width: 90%;
+  max-width: 300px;
+  align-self: center;
+  background-color: #e50914;
+  border-radius: 5px;
+}
+
+/* Profile photo in toolbar */
+.profile-photo {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;  /* Stack the profile photo and name vertically */
+  justify-content: center;
+  align-items: center;
+}
+
+.profile-photo img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-photo p {
+  margin: 2px 0 0;  /* Add some space between the photo and the username */
+  font-size: 0.9rem;
+  color: white;
 }
 </style>
