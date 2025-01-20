@@ -47,7 +47,7 @@
         <!-- Navigatieknop -->
         <ion-button
           expand="block"
-          color="primary"
+          color="white"
           @click="goToTab3"
         >
           Kijk Film
@@ -197,6 +197,10 @@ ion-button {
   align-self: center;
   background-color: #e50914;
   border-radius: 5px;
+}
+
+ion-button p{
+color: white;
 }
 
 /* Profile photo in toolbar */
