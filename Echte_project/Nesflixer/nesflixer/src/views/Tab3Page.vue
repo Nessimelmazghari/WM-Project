@@ -1,18 +1,32 @@
 <template>
   <ion-page>
     <ion-header>
-      <ion-toolbar :color="isDarkMode ? 'dark' : 'light'">
-        <ion-title class="logo">
-          <img
-            src="https://nessimelmazghari-odisee.be/nesflixer/nesflixer_logo.png"
-            alt="Logo"
-            id="logo"
-          />
-        </ion-title>
-      </ion-toolbar>
-    </ion-header>
+  <ion-toolbar :color="isDarkMode ? 'dark' : 'light'">
+    <div class="logo">
+      <img
+        src="https://nessimelmazghari-odisee.be/nesflixer/nesflixer_logo.png"
+        alt="Logo"
+        id="logo"
+      />
+    </div>
+    <div v-if="profileImage" class="profile-photo">
+      <img :src="profileImage" alt="Profiel Foto" />
+      <p>{{ username }}</p>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+
+
     <ion-content :fullscreen="true">
-      <!-- Movie Details and Video Player -->
+      <div v-if="!isProfileSet">
+        <h2>Stel je profiel in</h2>
+        <input type="text" v-model="username" placeholder="Gebruikersnaam" required />
+        <button @click="capturePhoto">Maak Foto</button>
+        <input type="file" @change="handleFileChange" />
+        <button @click="saveProfile">Profiel Opslaan</button>
+      </div>
+
       <div v-if="movie" :class="{ dark: isDarkMode }">
         <div class="movie-details">
           <h2>{{ movie.title }}</h2>
@@ -31,69 +45,168 @@
         <p>Film niet gevonden...</p>
       </div>
 
-      <!-- Chat Section -->
-      <div v-if="chatMessages.length > 0" class="chat-container">
-        <div class="chat-messages">
-          <div v-for="message in chatMessages" :key="message.timestamp" class="chat-message">
+      <div class="video-sync-toggle">
+        <button @click="toggleSyncing">{{ isSyncing ? 'Stop Synchronisatie' : 'Start Synchronisatie' }}</button>
+        <button @click="sendManualPost('playing')">Speel Video</button>
+        <button @click="sendManualPost('paused')">Pauzeer Video</button>
+      </div>
+
+      <div class="chat-container">
+        <div class="chat-messages" v-if="chatMessages.length > 0">
+          <div v-for="(message, index) in chatMessages" :key="index" class="chat-message">
             <strong>{{ message.username }}:</strong> {{ message.message }}
             <span class="timestamp">{{ new Date(message.timestamp).toLocaleString() }}</span>
           </div>
         </div>
+        <div v-else>
+          <p>Geen berichten beschikbaar...</p>
+        </div>
+
         <div class="chat-input">
-          <input v-model="newMessage" type="text" placeholder="Schrijf een bericht..." />
+          <input
+            type="text"
+            placeholder="Schrijf een bericht..."
+            v-model="newMessage"
+            @keyup.enter="sendMessage"
+          />
           <button @click="sendMessage">Verstuur</button>
         </div>
       </div>
 
-      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
-
-      <!-- Console log for errors related to sensors -->
-      <div class="console-log">
-        <p>{{ sensorStatus }}</p>
-      </div>
     </ion-content>
   </ion-page>
 </template>
 
+
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 
-// Data refs
+const username = ref('');
+const profileImage = ref<string | null>(null);
+const isProfileSet = ref<boolean>(false);
+
 const movie = ref<any>(null);
 const sourceUrl = ref<string | null>(null);
 const videoElement = ref<HTMLVideoElement | null>(null);
-const isDarkMode = ref(false); // Track dark mode status
-const errorMessage = ref<string | null>(null); // Error message
-const sensorStatus = ref<string>(''); // Holds status or errors from sensors
-
-// Chat data
+const isDarkMode = ref(false);
+const errorMessage = ref<string | null>(null);
 const chatMessages = ref<any[]>([]);
 const newMessage = ref<string>('');
 
-// Route handling
-const route = useRoute();
-const chatId = ref<string>('123'); // Example chat ID, you can set dynamically if needed
+const isSyncing = ref<boolean>(false);  // Track whether syncing is active
+let pollingInterval: ReturnType<typeof setInterval>;
 
-// Lifecycle: Fetch data and set up functionality
-onMounted(async () => {
-  const movieId = route.params.id;
-  if (typeof movieId === 'string') {
-    await fetchMovieData(movieId);
-    setupVideoSync();
-    startPolling();
-    fetchChatMessages();
-  } else {
-    console.error('Movie ID is not a string:', movieId);
+function saveProfile() {
+  if (username.value) {
+    localStorage.setItem('username', username.value);
+    if (profileImage.value) {
+      localStorage.setItem('profileImage', profileImage.value);
+    }
+    isProfileSet.value = true;
   }
-});
+}
 
-onBeforeUnmount(() => {
-  removeVideoEventListeners();
-  stopPolling();
-});
+function handleFileChange(event: Event) {
+  const file = (event.target as HTMLInputElement)?.files?.[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      profileImage.value = reader.result as string;
+      // Save to local storage
+      if (username.value) {
+        localStorage.setItem('username', username.value);
+        localStorage.setItem('profileImage', profileImage.value);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+}
 
-// Fetch movie and source data
+
+async function capturePhoto() {
+  try {
+    const image = await Camera.getPhoto({
+      quality: 90,
+      allowEditing: false,
+      resultType: CameraResultType.Uri,
+      source: CameraSource.Camera, // Capture photo from the camera
+    });
+
+    profileImage.value = image.webPath as string; // Store the image URI
+  } catch (error) {
+    console.error("Fout bij het maken van foto:", error);
+  }
+}
+
+async function fetchChatMessages() {
+  try {
+    const response = await fetch(
+      'https://nessimelmazghari-odisee.be/nesflixer/Api/load_chat.php?chat_id=123'
+    );
+    const messages = await response.json();
+    if (Array.isArray(messages)) {
+      chatMessages.value = messages;
+    } else {
+      console.error('Error loading chat messages:', messages);
+    }
+  } catch (error) {
+    console.error('Fout bij het ophalen van chatberichten:', error);
+  }
+}
+
+async function sendMessage() {
+  if (newMessage.value.trim() !== '') {
+    const message = newMessage.value;
+    const usernameStored = localStorage.getItem('username');
+    const profileImageStored = localStorage.getItem('profileImage');
+
+    if (usernameStored) {
+      try {
+        const response = await fetch(
+          'https://nessimelmazghari-odisee.be/nesflixer/Api/save_message.php',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+              chat_id: '123',
+              message,
+              username: usernameStored,
+              profile_image: profileImageStored || '',
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          console.error(
+            'POST-verzoek mislukt met status:',
+            response.status,
+            response.statusText
+          );
+          return;
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+          chatMessages.value.push({
+            username: usernameStored,
+            message,
+            timestamp: new Date().toISOString(),
+            profileImage: profileImageStored,
+          });
+          newMessage.value = '';
+        } else {
+          console.error('Fout in serverantwoord:', result);
+        }
+      } catch (error) {
+        console.error('Netwerkfout bij het verzenden van bericht:', error);
+      }
+    }
+  }
+}
+
 async function fetchMovieData(movieId: string) {
   try {
     const movieResponse = await fetch(
@@ -101,8 +214,8 @@ async function fetchMovieData(movieId: string) {
     );
     const movieData = await movieResponse.json();
     if (!movieData.error) {
-      movie.value = movieData; // Fetch movie data (title and other info)
-      errorMessage.value = null; // Reset error message if successful
+      movie.value = movieData;
+      errorMessage.value = null;
     } else {
       errorMessage.value = movieData.error;
     }
@@ -122,58 +235,11 @@ async function fetchMovieData(movieId: string) {
   }
 }
 
-// Chat functions
-async function fetchChatMessages() {
-  try {
-    const response = await fetch(`https://nessimelmazghari-odisee.be/nesflixer/Api/load_chat.php?chat_id=${chatId.value}`);
-    const messages = await response.json();
-    if (Array.isArray(messages)) {
-      chatMessages.value = messages;
-    } else {
-      console.error('Error loading chat messages:', messages);
-    }
-  } catch (error) {
-    console.error('Fout bij het ophalen van chatberichten:', error);
-  }
-}
-
-async function sendMessage() {
-  if (newMessage.value.trim()) {
-    const message = newMessage.value;
-    try {
-      const username = 'User'; // Replace with dynamic username if needed
-      const response = await fetch('https://nessimelmazghari-odisee.be/nesflixer/Api/save_message.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ chat_id: chatId.value, message, username })
-      });
-      const result = await response.json();
-      if (result.success) {
-        chatMessages.value.push({ username, message, timestamp: new Date().toISOString() });
-        newMessage.value = ''; // Clear input
-      } else {
-        console.error('Error sending message:', result);
-      }
-    } catch (error) {
-      console.error('Fout bij het versturen van bericht:', error);
-    }
-  }
-}
-
-// Video sync and polling logic
 function setupVideoSync() {
   const video = videoElement.value;
   if (video) {
     video.addEventListener('play', () => updateState('playing'));
     video.addEventListener('pause', () => updateState('paused'));
-  }
-}
-
-function removeVideoEventListeners() {
-  const video = videoElement.value;
-  if (video) {
-    video.removeEventListener('play', () => updateState('playing'));
-    video.removeEventListener('pause', () => updateState('paused'));
   }
 }
 
@@ -185,9 +251,20 @@ function updateState(state: string) {
   }).catch((error) => console.error('Error bij POST-verzoek:', error));
 }
 
-let pollingInterval: ReturnType<typeof setInterval>;
+function sendManualPost(state: string) {
+  updateState(state);
+}
 
-function startPolling() {
+function toggleSyncing() {
+  if (isSyncing.value) {
+    stopSyncing();
+  } else {
+    startSyncing();
+  }
+  isSyncing.value = !isSyncing.value;  // Toggle sync state
+}
+
+function startSyncing() {
   pollingInterval = setInterval(async () => {
     try {
       const response = await fetch(
@@ -208,10 +285,37 @@ function startPolling() {
   }, 1000);
 }
 
-function stopPolling() {
+function stopSyncing() {
   clearInterval(pollingInterval);
+  console.log("Synchronisatie gestopt.");
 }
+
+onMounted(() => {
+  const storedUsername = localStorage.getItem('username');
+  const storedProfileImage = localStorage.getItem('profileImage');
+  if (storedUsername) {
+    username.value = storedUsername;
+    isProfileSet.value = true;
+  }
+  if (storedProfileImage) {
+    profileImage.value = storedProfileImage;
+  }
+
+  const route = useRoute();
+  const movieId = route.params.id as string;
+  if (movieId) fetchMovieData(movieId);
+  setupVideoSync();
+  fetchChatMessages();
+  
+  // Fetch chat messages every 2 seconds
+  setInterval(fetchChatMessages, 2000);
+});
+
+onBeforeUnmount(() => {
+  clearInterval(pollingInterval);
+});
 </script>
+
 
 <style scoped>
 .movie-details {
@@ -257,17 +361,6 @@ p {
   line-height: 1.6;
 }
 
-.logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #e50914;
-  text-align: center;
-}
-
-#logo {
-  width: 80px;
-}
-
 .error-message {
   color: red;
   text-align: center;
@@ -288,6 +381,7 @@ p {
   padding: 1rem;
   background-color: #f4f4f4;
   border-top: 1px solid #ccc;
+  color: #000;
 }
 
 .chat-messages {
@@ -302,46 +396,101 @@ p {
 
 .timestamp {
   font-size: 0.8rem;
-  color: gray;
+  color: #888;
+  margin-left: 10px;
 }
 
 .chat-input {
   display: flex;
   gap: 10px;
+  margin-bottom: 100px;
 }
 
 .chat-input input {
-  flex: 1;
+  width: 80%;
   padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
   border-radius: 4px;
+  border: 1px solid #ccc;
+  color: #fff;
 }
 
 .chat-input button {
   padding: 0.5rem;
-  background-color: #007bff;
-  color: white;
   border: none;
-  border-radius: 4px;
+  background-color: #e50914;
+  color: #fff;
   cursor: pointer;
+  border-radius: 4px;
 }
 
 .chat-input button:hover {
-  background-color: #0056b3;
+  background-color: #b20710;
 }
 
-@media (max-width: 600px) {
-  h2 {
-    font-size: 1.2rem;
-  }
+ion-toolbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;  /* To make sure we can position the profile photo absolutely */
+}
 
-  p {
-    font-size: 0.9rem;
-  }
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #e50914;
+  text-align: center;
+}
 
-  video {
-    width: 100%;
-  }
+#logo {
+  width: 80px;
+}
+
+.profile-photo {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;  /* Stack the profile photo and name vertically */
+  justify-content: center;
+  align-items: center;
+}
+
+.profile-photo img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-photo p {
+  margin: 2px 0 0;  /* Add some space between the photo and the username */
+  font-size: 0.9rem;
+  color: white;
+}
+
+
+
+.video-sync-toggle button {
+  background-color: #e50914;
+  padding: 10px;
+  margin-top: 10px;
+  color: white;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.video-sync-toggle button:hover {
+  background-color: #b20710;
+}
+
+.message-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
 }
 </style>
+

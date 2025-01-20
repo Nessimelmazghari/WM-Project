@@ -49,7 +49,7 @@ import {
 import { ref, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 
-const currentTabId = ref(1); // Standaard ID is 1
+const currentTabId = ref(0); // Standaard ID is 1
 const route = useRoute();
 
 // Controleer de huidige tab ID en update de waarde

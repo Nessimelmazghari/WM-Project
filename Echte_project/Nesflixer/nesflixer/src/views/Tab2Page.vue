@@ -2,21 +2,25 @@
   <ion-page>
     <ion-header>
       <ion-toolbar :color="isDarkMode ? 'dark' : 'light'">
-        <ion-title class="logo">
+        <div class="logo">
           <img
             src="https://nessimelmazghari-odisee.be/nesflixer/nesflixer_logo.png"
             alt="Logo"
             id="logo"
           />
-        </ion-title>
+        </div>
+        <div v-if="profileImage" class="profile-photo">
+          <img :src="profileImage" alt="Profiel Foto" />
+          <p>{{ username }}</p>
+        </div>
       </ion-toolbar>
     </ion-header>
+    
     <ion-content :fullscreen="true" class="scrollable-content">
       <div v-if="movie" class="movie-container">
         <h2>{{ movie.title }}</h2>
         <div
           class="media-container"
-          :style="{ width: 500 + 'px', height: 300 + 'px' }"
           @click="toggleTrailer"
         >
           <!-- Foto -->
@@ -33,7 +37,6 @@
             v-show="showTrailer"
             :src="getEmbedUrl(movie.trailer)"
             class="trailer-frame"
-            :style="{ width: 500 + 'px', height: 300 + 'px' }"
             frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen
@@ -69,6 +72,8 @@ const imageWidth = ref<number | null>(null);
 const imageHeight = ref<number | null>(null);
 const movieImage = ref<HTMLImageElement | null>(null);
 const isDarkMode = ref(false); // Track dark mode status
+const username = ref(localStorage.getItem('username') || '');
+const profileImage = ref(localStorage.getItem('profileImage') || '');
 
 const setImageDimensions = () => {
   if (movieImage.value) {
@@ -139,11 +144,12 @@ onMounted(async () => {
   color: white;
   text-align: center;
   min-height: 120vh; /* Ensure container takes at least full viewport height */
+  max-width: 90%;
 }
 
 .media-container {
   position: relative;
-  width: 90%;
+  width: 100%;
   max-width: 600px;
   aspect-ratio: 16 / 9;
   overflow: hidden;
@@ -158,6 +164,7 @@ onMounted(async () => {
   height: 100%;
   object-fit: cover;
   border-radius: 10px;
+  max-width: 100%;
 }
 
 .trailer-frame {
@@ -188,5 +195,31 @@ ion-button {
   width: 90%;
   max-width: 300px;
   align-self: center;
+  background-color: #e50914;
+  border-radius: 5px;
+}
+
+/* Profile photo in toolbar */
+.profile-photo {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;  /* Stack the profile photo and name vertically */
+  justify-content: center;
+  align-items: center;
+}
+
+.profile-photo img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-photo p {
+  margin: 2px 0 0;  /* Add some space between the photo and the username */
+  font-size: 0.9rem;
+  color: white;
 }
 </style>
