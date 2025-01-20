@@ -141,7 +141,7 @@ onMounted(async () => {
   flex-direction: column;
   align-items: center;
   padding: 1rem;
-  color: white;
+  color: #e50914;
   text-align: center;
   min-height: 120vh; /* Ensure container takes at least full viewport height */
   max-width: 90%;
@@ -220,6 +220,6 @@ ion-button {
 .profile-photo p {
   margin: 2px 0 0;  /* Add some space between the photo and the username */
   font-size: 0.9rem;
-  color: white;
+  color: #e50914;
 }
 </style>

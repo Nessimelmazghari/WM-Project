@@ -359,6 +359,7 @@ h2 {
 p {
   font-size: 1rem;
   line-height: 1.6;
+  color: red;
 }
 
 .error-message {
@@ -388,10 +389,12 @@ p {
   max-height: 300px;
   overflow-y: auto;
   margin-bottom: 1rem;
+  color: #e50914;
 }
 
 .chat-message {
   margin-bottom: 0.5rem;
+  color: #e50914;
 }
 
 .timestamp {
@@ -411,7 +414,7 @@ p {
   padding: 0.5rem;
   border-radius: 4px;
   border: 1px solid #ccc;
-  color: #fff;
+  color: #e50914;
 }
 
 .chat-input button {

@@ -94,7 +94,7 @@ const isDarkMode = ref(false);
 
 h2 {
   font-size: 1.2rem;
-  color: white;
+  color: #e50914;
   padding: 0 1rem;
 }
 
@@ -123,6 +123,6 @@ h2 {
 .profile-photo p {
   margin: 2px 0 0;
   font-size: 0.9rem;
-  color: white;
+  color: #e50914;
 }
 </style>
